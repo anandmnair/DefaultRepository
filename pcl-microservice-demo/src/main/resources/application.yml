@@ -1,6 +1,6 @@
 spring:
   application:
-    name: PCL MICRO SERVICES
+    name: PCL-MICRO-SERVICES
 
 server:
   port: 2222
