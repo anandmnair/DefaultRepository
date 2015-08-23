@@ -15,12 +15,12 @@ public class DealController {
 	@Autowired
 	private DealService dealService;
 	
-	@RequestMapping(name="deals")
+	@RequestMapping(value="deals")
 	public List<Deal> getAllDeals() {
 		return dealService.getAllDeals();
 	}
 	
-	@RequestMapping(name="getInfo")
+	@RequestMapping(value="getInfo")
 	public String getInfo() {
 		return "CPM MICRO SERVICE SAMPLE";
 	}

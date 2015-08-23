@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class DefaultController {
 
-	@RequestMapping(name="/getInfo")
+	@RequestMapping(value="/getInfo")
 	public String getInfo() {
 		return "PCL MICRO SERVICE SAMPLE";
 	}
