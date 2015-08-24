@@ -11,5 +11,5 @@ public interface PclClient {
 	String getPclInfo();
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/getInfo/{message}")
-	String getPclInfoMessage(@PathVariable("userId") String userId);
+	String getPclInfoMessage(@PathVariable("message") String message);
 }

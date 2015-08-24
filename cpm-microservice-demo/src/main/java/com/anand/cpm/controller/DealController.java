@@ -14,12 +14,16 @@ import org.springframework.web.client.RestTemplate;
 
 import com.anand.cpm.bean.Deal;
 import com.anand.cpm.service.DealService;
+import com.anand.cpm.service.PclService;
 
 @RestController
 public class DealController {
 	
 	@Autowired
 	private RestTemplate restTemplate;
+	
+	@Autowired 
+	private PclService pclService;
 
 	@Autowired
 	private DealService dealService;
@@ -61,6 +65,16 @@ public class DealController {
 		String messageFromPcl = responseEntity.getBody();
 		
 		return "CPM MICRO SERVICE SAMPLE :: Message from Pcl to CPM is ::  " + messageFromPcl;
+	}
+	
+	@RequestMapping(value="/getInfo/pcl/service", method = RequestMethod.GET)
+	public String getPclInfoService() {
+		return "CPM MICRO SERVICE SAMPLE :: Message from Pcl to CPM is :: SERVICE :::  " + pclService.getPclInfo();
+	}
+	
+	@RequestMapping(value="/getInfo/pcl/service/{message}", method = RequestMethod.GET)
+	public String getPclInfoMessageService(@PathVariable("message") String message) {
+		return "CPM MICRO SERVICE SAMPLE :: Message from Pcl to CPM is :: SERVICE ::: " + pclService.getPclInfoMessage(message);
 	}
 	
 }
