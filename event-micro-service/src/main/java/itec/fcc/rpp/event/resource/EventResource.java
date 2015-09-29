@@ -29,12 +29,20 @@ import itec.fcc.rpp.event.service.EventService;
 @Consumes(MediaType.APPLICATION_JSON)
 public class EventResource {
 
+	private long counter=0;
+	
 	@Autowired
 	private EventService eventService;
 	
 	@GET
-	//@Path("/")
+	@Path("/")
 	public Response getEvents() {
+		return Response.ok().entity("event-service :: " + (++counter)).build();
+	}
+	
+	@GET
+	@Path("/all")
+	public Response getAllEvents() {
 		return Response.ok().entity(eventService.getEvents()).build();
 	}
 	
