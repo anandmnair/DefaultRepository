@@ -1,0 +1,20 @@
+
+zuul:
+  routes:
+    car-service: 
+      path: /car-service/**
+      url: http://localhost:1111
+      
+server.port: 8443
+server.ssl.key-store: /Users/Anand/Anu/Work/Keys/keystore.jks
+server.ssl.key-store-password: password
+#server.ssl.keyStoreType: PKCS12
+server.ssl.keyAlias: selfsigned
+
+cas: 
+  server: 
+    url:
+      prefix: https://jasigcas.herokuapp.com/cas
+  service:
+    url:  
+      prefix: https://localhost:8443
