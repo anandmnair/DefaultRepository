@@ -1,13 +1,18 @@
 package com.anand.demo.security;
 
+import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
+import org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl;
 import org.jasig.cas.client.session.SingleSignOutFilter;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
+import org.jasig.cas.client.validation.TicketValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.authentication.CasAssertionAuthenticationToken;
 import org.springframework.security.cas.authentication.CasAuthenticationProvider;
+import org.springframework.security.cas.authentication.EhCacheBasedTicketCache;
+import org.springframework.security.cas.authentication.StatelessTicketCache;
 import org.springframework.security.cas.web.CasAuthenticationEntryPoint;
 import org.springframework.security.cas.web.CasAuthenticationFilter;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -17,6 +22,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+
+import net.sf.ehcache.Cache;
 
 @Configuration
 @EnableWebSecurity
@@ -48,11 +55,26 @@ public class CasConfig extends WebSecurityConfigurerAdapter {
     public CasAuthenticationProvider casAuthenticationProvider() {
         CasAuthenticationProvider casAuthenticationProvider = new CasAuthenticationProvider();
         casAuthenticationProvider.setAuthenticationUserDetailsService(authenticationUserDetailsService());
+        //casAuthenticationProvider.setUserDetailsService(userDetailsService());
         casAuthenticationProvider.setServiceProperties(serviceProperties());
-        casAuthenticationProvider.setTicketValidator(cas20ServiceTicketValidator());
+        casAuthenticationProvider.setTicketValidator(casTicketValidator());
         casAuthenticationProvider.setKey("an_id_for_this_auth_provider_only");
+        casAuthenticationProvider.setStatelessTicketCache(statelessTicketCache());
         return casAuthenticationProvider;
     }
+	
+	@Bean
+	public StatelessTicketCache statelessTicketCache(){
+		EhCacheBasedTicketCache cacheBasedTicketCache = new EhCacheBasedTicketCache();
+		cacheBasedTicketCache.setCache(cache());
+		return cacheBasedTicketCache;
+	}
+	
+	@Bean(initMethod="initialise", destroyMethod="dispose")
+	public Cache cache() {
+		Cache cache = new Cache("casTickets", 50, false, false, 3600, 900);
+		return cache;
+	}
 	
 	@Bean
     public AuthenticationUserDetailsService<CasAssertionAuthenticationToken> authenticationUserDetailsService() {
@@ -60,16 +82,26 @@ public class CasConfig extends WebSecurityConfigurerAdapter {
     }
 	
     @Bean
-    public Cas20ServiceTicketValidator cas20ServiceTicketValidator() {
-    	Cas20ServiceTicketValidator cas20ServiceTicketValidator = new Cas20ServiceTicketValidator(casServerUrlPrefix);
-    	return cas20ServiceTicketValidator;
+    public TicketValidator casTicketValidator() {
+    	Cas20ServiceTicketValidator casTicketValidator = new Cas20ServiceTicketValidator(casServerUrlPrefix);
+    	//casTicketValidator.setProxyCallbackUrl(casServiceUrlPrefix + "/j_spring_cas_security_proxyreceptor");
+    	//casTicketValidator.setProxyGrantingTicketStorage(proxyGrantingTicketStorage());
+    	//cas20ServiceTicketValidator.setAcceptAnyProxy(true);
+    	return casTicketValidator;
     }
-
+    
+    @Bean 
+	public ProxyGrantingTicketStorage proxyGrantingTicketStorage() {
+    	ProxyGrantingTicketStorage proxyGrantingTicketStorage = new ProxyGrantingTicketStorageImpl();
+    	return proxyGrantingTicketStorage;
+    }
+    
     @Bean
     public CasAuthenticationFilter casAuthenticationFilter() throws Exception {
         CasAuthenticationFilter casAuthenticationFilter = new CasAuthenticationFilter();
         casAuthenticationFilter.setAuthenticationManager(authenticationManager());
         casAuthenticationFilter.setFilterProcessesUrl("/j_spring_cas_security_check");
+        //casAuthenticationFilter.setProxyReceptorUrl("/j_spring_cas_security_proxyreceptor");
         return casAuthenticationFilter;
     }
     
@@ -94,6 +126,11 @@ public class CasConfig extends WebSecurityConfigurerAdapter {
     	 securityContextLogoutHandler.setInvalidateHttpSession(true);
     	 return securityContextLogoutHandler;
     }
+    
+//    @Bean
+//    public ProxyTicketSampleServlet proxyTicketSampleServlet() {
+//    	return proxyTicketSampleServlet();
+//    }
     
     @Override
     protected void configure(HttpSecurity http) throws Exception {
