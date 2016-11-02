@@ -1,0 +1,17 @@
+spring: 
+  data: 
+    elasticsearch: 
+      properties: 
+        index: 
+          search: 
+            slowlog: 
+              threshold: 
+                query: 
+                  info: 1ms
+
+logging:  
+  level: 
+    ROOT: INFO 
+    org.elasticsearch.index.search.slowlog.query: DEBUG
+    
+    
